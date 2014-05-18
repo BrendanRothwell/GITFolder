@@ -24,6 +24,8 @@ public class Car extends Vehicle {
 	
 	private boolean small; 
 
+	private String vehID;
+	private Integer arrivalTime;
 	/**
 	 * The Car Constructor - small set at creation, not mutable. 
 	 * @param vehID - identification number or plate of the vehicle
@@ -33,6 +35,13 @@ public class Car extends Vehicle {
 	 * @throws VehicleException if arrivalTime is <= 0  
 	 */
 	public Car(String vehID, int arrivalTime, boolean small) throws VehicleException {
+		if(arrivalTime > 0){
+			this.vehID = vehID;
+			this.arrivalTime = arrivalTime;
+			this.small = true;
+		} else {
+			throw new VehicleException ("arrivalTime must be positive integer");
+		}
 	}
 
 	/**
@@ -41,6 +50,7 @@ public class Car extends Vehicle {
 	 * @return true if small parking space, false otherwise
 	 */
 	public boolean isSmall() {
+		if()
 	}
 
 	/* (non-Javadoc)
