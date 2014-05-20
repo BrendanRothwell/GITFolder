@@ -93,6 +93,7 @@ public class CarPark {
 		spaces = new ArrayList<String>(maxCarSpaces + maxSmallCarSpaces
 				+ maxMotorCycleSpaces);
 		queue = new ArrayList<String>(maxQueueSize);
+		past = new ArrayList<String>();
 	}
 
 	/**
@@ -109,14 +110,12 @@ public class CarPark {
 	 *             if one or more departing vehicles are not in the car park
 	 *             when operation applied
 	 */
-	public void archiveDepartingVehicles(int time, boolean force)
+	public void archiveDepartingVehicles(int time, boolean force)// force??
 			throws VehicleException, SimulationException {
-		if (vehicle.wasParked() == true && time == Constants.CLOSING_TIME) {
+		if (!carParkEmpty()) {
+			vehicle.exitParkedState(time);
 			state = "A";
 		} else {
-			throw new VehicleException("incorrect state");
-		}
-		if (spaces.size() < 1) {
 			throw new SimulationException("Vehicles are not in the car park");
 		}
 	}
@@ -131,11 +130,11 @@ public class CarPark {
 	 *             if vehicle is currently queued or parked
 	 */
 	public void archiveNewVehicle(Vehicle v) throws SimulationException {
-		if (vehicle.wasParked() == false && vehicle.wasQueued() == false) {
+		if (!((Vehicle) v).isParked() && !((Vehicle) v).isQueued()) {
 			state = "A";
 		} else {
 			throw new SimulationException(
-					"vehicle is currently queued or parked");
+					"Vehicle is currently queued or parked");
 		}
 	}
 
@@ -163,7 +162,7 @@ public class CarPark {
 	 * @return true if car park empty, false otherwise
 	 */
 	public boolean carParkEmpty() {
-		if (spaces.isEmpty() == true) {
+		if (spaces.isEmpty()) {
 			return true;
 		} else {
 			return false;
@@ -176,7 +175,8 @@ public class CarPark {
 	 * @return true if car park full, false otherwise
 	 */
 	public boolean carParkFull() {
-		if (spaces.size() == maxCarSpaces) {
+		if (spaces.size() == maxCarSpaces + maxMotorCycleSpaces
+				+ maxSmallCarSpaces) {
 			return true;
 		} else {
 			return false;
@@ -197,17 +197,11 @@ public class CarPark {
 	 */
 	public void enterQueue(Vehicle v) throws SimulationException,
 			VehicleException {
-		if (queueFull() == false) {
-			queue.add(0, (Vehicle) v); //vehicle v means??
+		if (!queueFull() && carParkFull()) {
+			queue.add(0, vehicle v); //vehicle v means??
+			((Vehicle) v).enterQueuedState(); // enterQueuedState method throws VehicleException if vehicle not in the correct state
 		} else {
 			throw new SimulationException("Queue is full");
-		}
-		if (vehicle.enterQueueState() == "Q") { // find the way to get state
-												// from vehicle via
-												// enterQueueState
-
-		} else {
-			throw new VehicleException("vehicle is not in the correct state");
 		}
 	}
 
@@ -227,6 +221,12 @@ public class CarPark {
 	 */
 	public void exitQueue(Vehicle v, int exitTime) throws SimulationException,
 			VehicleException {
+		if (((Vehicle) v).isQueued() && exitTime > vehicle.getArrivalTime()) {
+			vehicle.exitQueuedState(exitTime);
+			queue.remove(0);
+		} else {
+			throw new SimulationException("Vehicle is not in queue");
+		}
 	}
 
 	/**
@@ -329,6 +329,7 @@ public class CarPark {
 	 * @return number of vehicles in the queue
 	 */
 	public int numVehiclesInQueue() {
+		return queue.size();
 	}
 
 	/**
@@ -350,6 +351,13 @@ public class CarPark {
 	 */
 	public void parkVehicle(Vehicle v, int time, int intendedDuration)
 			throws SimulationException, VehicleException {
+		if (!carParkFull()) {
+			((Vehicle) v).enterParkedState(time, intendedDuration);
+			spaces.add(0, ((Vehicle) v));
+		} else {
+			throw new SimulationException(
+					"No suitable spaces are available for parking");
+		}
 	}
 
 	/**
@@ -366,7 +374,14 @@ public class CarPark {
 	 *             if state is incorrect, or timing constraints are violated
 	 */
 	public void processQueue(int time, Simulator sim) throws VehicleException,
-			SimulationException {
+			SimulationException { //need to use for loop???
+		if(!carParkFull()){
+			vehicle.exitQueuedState(time);
+			spaces.add(0, queue.get(0));
+			queue.remove(0);
+		} else {
+			throw new SimulationException("No suitable spaces available");
+		}
 	}
 
 	/**
@@ -375,7 +390,7 @@ public class CarPark {
 	 * @return true if queue empty, false otherwise
 	 */
 	public boolean queueEmpty() {
-		if (queue.isEmpty() == true) {
+		if (queue.isEmpty()) {
 			return true;
 		} else {
 			return false;
@@ -405,6 +420,11 @@ public class CarPark {
 	 * @return true if space available for v, false otherwise
 	 */
 	public boolean spacesAvailable(Vehicle v) {
+		if (!carParkFull()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/*
@@ -430,6 +450,7 @@ public class CarPark {
 	 */
 	public void tryProcessNewVehicles(int time, Simulator sim)
 			throws VehicleException, SimulationException {
+
 	}
 
 	/**
@@ -447,6 +468,12 @@ public class CarPark {
 	 */
 	public void unparkVehicle(Vehicle v, int departureTime)
 			throws VehicleException, SimulationException {
+		if(((Vehicle) v).isParked()){
+			vehicle.exitParkedState(departureTime);
+			spaces.remove(0);
+		} else {
+			throw new SimulationException("Vehicle is not in car park");
+		}
 	}
 
 	/**
