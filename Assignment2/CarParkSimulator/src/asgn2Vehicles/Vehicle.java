@@ -2,6 +2,8 @@ package asgn2Vehicles;
 
 import asgn2Exceptions.VehicleException;
 import asgn2Simulators.Constants;
+import asgn2Simulators.Simulator;
+import asgn2Vehicles.Car;
 
 /**
  * Vehicle is an abstract class specifying the basic state of a vehicle and the methods used 
@@ -16,7 +18,7 @@ import asgn2Simulators.Constants;
  * in the queued state, or to leave a queue when it is not. Vehicles are parked using the enterParkedState 
  * method and depart using exitParkedState Note again that exceptions are thrown if the state is 
  * inappropriate: vehicles cannot be parked or exit the car park from a queued state.
- * @author Brendan Rothwell
+ * @author Brendan Rothwell n8540683
  * @version 1.0
  */
 public abstract class Vehicle extends java.lang.Object {
@@ -27,6 +29,7 @@ public abstract class Vehicle extends java.lang.Object {
 	int parkingTime;
 	int departureTime;
 	private String state = "";
+	private String satisfaction;
 	
 	/**
 	 * Vehicle Constructor
@@ -41,6 +44,7 @@ public abstract class Vehicle extends java.lang.Object {
 		}
 		this.vehID = vehID;
 		this.arrivalTime = arrivalTime;
+		if (Simulator.newCarTrial() == true);
 	}
 	
 	/**
@@ -145,7 +149,7 @@ public abstract class Vehicle extends java.lang.Object {
 	 * Simple getter for the vehicle ID
 	 * @return the vehID
 	 */
-	public java.lang.String getVehID() {
+	public String getVehID() {
 		return vehID;
 	}
 	
@@ -187,8 +191,37 @@ public abstract class Vehicle extends java.lang.Object {
 	 */
 	@Override
 	public String toString() {
-		
+		if (isSatisfied() == true) {
+			satisfaction = " was ";
+		} else {
+			satisfaction = " was not ";
+		}
+		String vehicleStr = "Vehicle vehID: " + vehID + 
+				" Arrival Time: " + arrivalTime;
+		if (wasQueued() == true) {
+			vehicleStr += " Exit from Queue: " + exitTime + 
+					" Queuing Time: " + (exitTime - arrivalTime);
+		} else {
+			vehicleStr += " Vehicle was not queued";
+		}
+		if (wasParked() == true) {
+			vehicleStr += " Entry to Car Park: " + exitTime +
+			" Exit from Car Park: " + departureTime
+			+ " Parking Time: " + (departureTime - exitTime);
+		} else {
+			vehicleStr += " Vehicle was not parked";
+		}
+		vehicleStr += " Customer" + satisfaction + "satisfied";
+		if (vehID = "C" + Car.count) { 
+			if (Car.isSmall() == true) {
+				vehicleStr += " Car can use small car parking space";
+			} else {
+				vehicleStr += " Car cannot use small parking space";
+			}
+		}
+		return vehicleStr;
 	}
+
 	
 	/**
 	 * Boolean status indicating whether vehicle was ever parked Will return false for vehicles in queue or turned away
