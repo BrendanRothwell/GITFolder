@@ -38,7 +38,7 @@ public class Car extends Vehicle {
 		if(arrivalTime > 0){
 			this.vehID = vehID;
 			this.arrivalTime = arrivalTime;
-			this.small = true;
+			this.small = small;
 		} else {
 			throw new VehicleException ("arrivalTime must be positive integer");
 		}
@@ -50,7 +50,11 @@ public class Car extends Vehicle {
 	 * @return true if small parking space, false otherwise
 	 */
 	public boolean isSmall() {
-		if()
+		if(small){
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/* (non-Javadoc)

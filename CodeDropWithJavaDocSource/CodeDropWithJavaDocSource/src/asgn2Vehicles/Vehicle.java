@@ -52,6 +52,7 @@ public abstract class Vehicle {
 	private Integer parkingTime;
 	private Integer departureTime;
 	private String state = "N";
+	private String satisfaction;
 
 	/**
 	 * Vehicle Constructor
@@ -64,6 +65,10 @@ public abstract class Vehicle {
 	 * @throws VehicleException
 	 *             if arrivalTime is <= 0
 	 */
+
+	public Vehicle() {
+	}
+
 	public Vehicle(String vehID, int arrivalTime) throws VehicleException {
 		if (arrivalTime > 0) {
 			this.vehID = vehID;
@@ -246,6 +251,35 @@ public abstract class Vehicle {
 	 */
 	@Override
 	public String toString() {
+		if (isSatisfied() == true) {
+			satisfaction = " was ";
+		} else {
+			satisfaction = " was not ";
+		}
+		String vehicleStr = "Vehicle vehID: " + vehID + " Arrival Time: "
+				+ arrivalTime;
+		if (wasQueued() == true) {
+			vehicleStr += " Exit from Queue: " + exitTime + " Queuing Time: "
+					+ (exitTime - arrivalTime);
+		} else {
+			vehicleStr += " Vehicle was not queued";
+		}
+		if (wasParked() == true) {
+			vehicleStr += " Entry to Car Park: " + exitTime
+					+ " Exit from Car Park: " + departureTime
+					+ " Parking Time: " + (departureTime - exitTime);
+		} else {
+			vehicleStr += " Vehicle was not parked";
+		}
+		vehicleStr += " Customer" + satisfaction + "satisfied";
+		if (vehID = "C" + Car.count) {
+			if (Car.isSmall() == true) {
+				vehicleStr += " Car can use small car parking space";
+			} else {
+				vehicleStr += " Car cannot use small parking space";
+			}
+		}
+		return vehicleStr;
 	}
 
 	/**
