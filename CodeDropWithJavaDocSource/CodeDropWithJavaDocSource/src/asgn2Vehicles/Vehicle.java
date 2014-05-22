@@ -53,6 +53,7 @@ public abstract class Vehicle {
 	private Integer departureTime;
 	private String state = "N";
 	private String satisfaction;
+	private Car car;
 
 	/**
 	 * Vehicle Constructor
@@ -256,8 +257,13 @@ public abstract class Vehicle {
 		} else {
 			satisfaction = " was not ";
 		}
-		String vehicleStr = "Vehicle vehID: " + vehID + " Arrival Time: "
-				+ arrivalTime;
+		String vehicleStr = "";
+		if(vehID.startsWith("M")){
+			vehicleStr = "Vehicle vehID: " + vehID + " Arrival Time: "
+					+ arrivalTime;
+		} else {
+			vehicleStr = car.toString();
+		}
 		if (wasQueued() == true) {
 			vehicleStr += " Exit from Queue: " + exitTime + " Queuing Time: "
 					+ (exitTime - arrivalTime);
@@ -272,8 +278,8 @@ public abstract class Vehicle {
 			vehicleStr += " Vehicle was not parked";
 		}
 		vehicleStr += " Customer" + satisfaction + "satisfied";
-		if (vehID = "C" + Car.count) {
-			if (Car.isSmall() == true) {
+		if (vehID.startsWith("C")) {
+			if (car.isSmall()) {
 				vehicleStr += " Car can use small car parking space";
 			} else {
 				vehicleStr += " Car cannot use small parking space";

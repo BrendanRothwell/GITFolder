@@ -465,7 +465,7 @@ public class CarPark {
 	public void tryProcessNewVehicles(int time, Simulator sim)
 			throws VehicleException, SimulationException {
 		if (sim.smallCarTrial()) {
-			Car newSmallCar = new Car("S" + this.count, time, true);
+			Car newSmallCar = new Car("C" + this.count, time, true);
 			count++;
 			if (queueFull() && carParkFull()) {
 				archiveNewVehicle(newSmallCar);
