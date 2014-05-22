@@ -1,63 +1,57 @@
-/**
- * 
- * This file is part of the CarParkSimulator Project, written as 
- * part of the assessment for INB370, semester 1, 2014. 
- *
- * CarParkSimulator
- * asgn2Tests 
- * 22/04/2014
- * 
- */
 package asgn2Tests;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * @author hogan
- *
- */
-public class CarTests {
+import asgn2Exceptions.VehicleException;
+import asgn2Vehicles.Car;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
+public class CarTest {
+	
+	private static Car as;
+	
+	// Constants
+	static final String VEHICLE_ID = "ABC123";
+	static final int ARRIVAL_TIME = 5;
+	static final boolean SMALL = false;
+	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		as = new Car(VEHICLE_ID, ARRIVAL_TIME, SMALL);
 	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
+	
+// Testing for exceptions
+	
+	// Exception: If arrival time is less than or equal to 0
+	@Test (expected = VehicleException.class)
+	public void NegArrivalTime() throws VehicleException {
+		as.Car(VEHICLE_ID, -ARRIVAL_TIME, SMALL);
 	}
-
-	/**
-	 * Test method for {@link asgn2Vehicles.Car#toString()}.
-	 */
+	
+	@Test (expected = VehicleException.class)
+	public void ZeroArrivalTime() throws VehicleException {
+		as.Car(VEHICLE_ID, 0, SMALL);
+	}
+	
+// Testing method functionality
+	
+	//IsSmall method
 	@Test
-	public void testToString() {
-		fail("Not yet implemented"); // TODO
+	public void isNotASmallCar() {
+		assertFalse(as.isSmall());
 	}
-
-	/**
-	 * Test method for {@link asgn2Vehicles.Car#Car(java.lang.String, int, boolean)}.
-	 */
+	
 	@Test
-	public void testCar() {
-		fail("Not yet implemented"); // TODO
+	public void isASmallCar() {
+		as.Car(VEHICLE_ID, ARRIVAL_TIME, true);
+		assertTrue(as.isSmall());
 	}
-
-	/**
-	 * Test method for {@link asgn2Vehicles.Car#isSmall()}.
-	 */
+	
+	//toString method
 	@Test
-	public void testIsSmall() {
-		fail("Not yet implemented"); // TODO
+	public void correctString() {
+		assertTrue(as.toString() = VEHICLE_ID);
 	}
-
 }

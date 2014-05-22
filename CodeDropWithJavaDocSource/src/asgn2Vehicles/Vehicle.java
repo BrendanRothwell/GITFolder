@@ -46,12 +46,14 @@ import asgn2Simulators.Constants;
  */
 public abstract class Vehicle {
 
-	String vehID;
-	Integer arrivalTime;
-	Integer exitTime;
-	Integer parkingTime;
-	Integer departureTime;
+	private String vehID;
+	private Integer arrivalTime;
+	private Integer exitTime;
+	private Integer parkingTime;
+	private Integer departureTime;
 	private String state = "N";
+	private String satisfaction;
+	private Car car;
 
 	/**
 	 * Vehicle Constructor
@@ -90,8 +92,9 @@ public abstract class Vehicle {
 	 */
 	public void enterParkedState(int parkingTime, int intendedDuration)
 			throws VehicleException {
-		if (state != "P" && state != "Q" && parkingTime > 0
+		if (!isParked() && !isQueued() && parkingTime > 0
 				&& intendedDuration > Constants.MINIMUM_STAY) {
+			this.parkingTime = parkingTime;
 			departureTime = parkingTime + intendedDuration;
 			state = "P";
 			isParked();
@@ -113,7 +116,7 @@ public abstract class Vehicle {
 			state = "Q";
 			isQueued();
 		} else {
-			throw new VehicleException("incorrect state");
+			throw new VehicleException("Vehicle not in the correct state");
 		}
 	}
 
@@ -127,7 +130,7 @@ public abstract class Vehicle {
 	 *             or if the revised departureTime < parkingTime
 	 */
 	public void exitParkedState(int departureTime) throws VehicleException {
-		if (state == "P" && state != "Q" && departureTime >= parkingTime) {
+		if (isParked() && !isQueued() && departureTime >= parkingTime) {
 			wasParked();
 			state = "";
 		} else {
@@ -147,9 +150,10 @@ public abstract class Vehicle {
 	 *             or if exitTime is not later than arrivalTime for this vehicle
 	 */
 	public void exitQueuedState(int exitTime) throws VehicleException {
-		if (state != "P" && state == "Q" && exitTime > arrivalTime) {
-			state = "";
+		if (!isParked() && isQueued() && exitTime > arrivalTime) {
+			this.exitTime = exitTime;
 			wasQueued();
+			state = "";
 		} else {
 			throw new VehicleException("incorrect state");
 		}
@@ -244,6 +248,40 @@ public abstract class Vehicle {
 	 */
 	@Override
 	public String toString() {
+		if (isSatisfied() == true) {
+			satisfaction = " was ";
+		} else {
+			satisfaction = " was not ";
+		}
+		String vehicleStr = "";
+		if(vehID.startsWith("M")){
+			vehicleStr = "Vehicle vehID: " + vehID + " Arrival Time: "
+					+ arrivalTime;
+		} else {
+			vehicleStr = car.toString();
+		}
+		if (wasQueued() == true) {
+			vehicleStr += " Exit from Queue: " + exitTime + " Queuing Time: "
+					+ (exitTime - arrivalTime);
+		} else {
+			vehicleStr += " Vehicle was not queued";
+		}
+		if (wasParked() == true) {
+			vehicleStr += " Entry to Car Park: " + exitTime
+					+ " Exit from Car Park: " + departureTime
+					+ " Parking Time: " + (departureTime - exitTime);
+		} else {
+			vehicleStr += " Vehicle was not parked";
+		}
+		vehicleStr += " Customer" + satisfaction + "satisfied";
+		if (vehID.startsWith("C")) {
+			if (car.isSmall()) {
+				vehicleStr += " Car can use small car parking space";
+			} else {
+				vehicleStr += " Car cannot use small parking space";
+			}
+		}
+		return vehicleStr;
 	}
 
 	/**
@@ -253,7 +291,7 @@ public abstract class Vehicle {
 	 * @return true if vehicle was or is in a parked state, false otherwise
 	 */
 	public boolean wasParked() {
-		if (isParked() == true) {
+		if (isParked()) {
 			return true;
 		} else {
 			return false;
@@ -266,7 +304,7 @@ public abstract class Vehicle {
 	 * @return true if vehicle was or is in a queued state, false otherwise
 	 */
 	public boolean wasQueued() {
-		if (isQueued() == true) {
+		if (isQueued()) {
 			return true;
 		} else {
 			return false;

@@ -21,6 +21,8 @@ import asgn2Exceptions.VehicleException;
  */
 public class MotorCycle extends Vehicle {
 
+	private String vehID;
+	private Integer arrivalTime;
 	/**
 	 * MotorCycle constructor 
 	 * @param vehID - identification number or plate of the vehicle
@@ -29,5 +31,13 @@ public class MotorCycle extends Vehicle {
 	 * @throws VehicleException if arrivalTime is <= 0  
 	 */
 	public MotorCycle(String vehID, int arrivalTime) throws VehicleException {
+		super(vehID, arrivalTime);
+		if(arrivalTime > 0){
+			this.vehID = vehID;
+			this.arrivalTime = arrivalTime;
+		} else {
+			throw new VehicleException ("arrivalTime must be positive integer");
+		}
+		
 	}
 }
