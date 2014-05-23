@@ -46,12 +46,12 @@ import asgn2Simulators.Constants;
  */
 public abstract class Vehicle {
 
-	private String vehID;
-	private Integer arrivalTime;
+	String vehID;
+	Integer arrivalTime;
 	private Integer exitTime;
 	private Integer parkingTime;
 	private Integer departureTime;
-	private String state = "N";
+	String state = "N";
 	private String satisfaction;
 	private Car car;
 
@@ -95,11 +95,11 @@ public abstract class Vehicle {
 		if (!isParked() && !isQueued() && parkingTime > 0
 				&& intendedDuration > Constants.MINIMUM_STAY) {
 			this.parkingTime = parkingTime;
-			departureTime = parkingTime + intendedDuration;
-			state = "P";
+			this.departureTime = parkingTime + intendedDuration;
+			this.state = "P";
 			isParked();
 		} else {
-			throw new VehicleException("incorrect state");
+			throw new VehicleException("The vehicle doesn't satisfy condition.");
 		}
 	}
 
@@ -113,10 +113,12 @@ public abstract class Vehicle {
 	 */
 	public void enterQueuedState() throws VehicleException {
 		if (state != "P" && state != "Q") {
-			state = "Q";
+			this.state = "Q";
 			isQueued();
+			this.exitQueuedState(exitTime);
 		} else {
-			throw new VehicleException("Vehicle not in the correct state");
+			throw new VehicleException(
+					"The vehicle is already in a queued or parked state.");
 		}
 	}
 
@@ -132,9 +134,9 @@ public abstract class Vehicle {
 	public void exitParkedState(int departureTime) throws VehicleException {
 		if (isParked() && !isQueued() && departureTime >= parkingTime) {
 			wasParked();
-			state = "";
+			this.state = "";
 		} else {
-			throw new VehicleException("incorrect state");
+			throw new VehicleException("The vehicle doesn't satisfy condition.");
 		}
 	}
 
@@ -153,9 +155,10 @@ public abstract class Vehicle {
 		if (!isParked() && isQueued() && exitTime > arrivalTime) {
 			this.exitTime = exitTime;
 			wasQueued();
-			state = "";
+			this.state = "";
+			this.enterQueuedState();
 		} else {
-			throw new VehicleException("incorrect state");
+			throw new VehicleException("The vehicle doesn't satisfy condition.");
 		}
 	}
 

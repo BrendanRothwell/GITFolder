@@ -20,9 +20,6 @@ import asgn2Exceptions.VehicleException;
  *
  */
 public class MotorCycle extends Vehicle {
-
-	private String vehID;
-	private int arrivalTime;
 	/**
 	 * MotorCycle constructor 
 	 * @param vehID - identification number or plate of the vehicle

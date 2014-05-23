@@ -23,11 +23,6 @@ import asgn2Exceptions.VehicleException;
 public class Car extends Vehicle {
 
 	private boolean small;
-
-	private String vehID;
-	private int arrivalTime;
-
-
 	/**
 	 * The Car Constructor - small set at creation, not mutable.
 	 * 
