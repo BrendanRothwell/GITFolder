@@ -274,13 +274,7 @@ public abstract class Vehicle {
 			vehicleStr += " Vehicle was not parked";
 		}
 		vehicleStr += " Customer" + satisfaction + "satisfied";
-		if (vehID.startsWith("C")) {
-			if (car.isSmall()) {
-				vehicleStr += " Car can use small car parking space";
-			} else {
-				vehicleStr += " Car cannot use small parking space";
-			}
-		}
+		vehicleStr += car.toString();
 		return vehicleStr;
 	}
 
