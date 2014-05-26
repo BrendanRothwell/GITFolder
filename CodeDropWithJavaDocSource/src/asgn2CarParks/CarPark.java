@@ -46,21 +46,22 @@ public class CarPark {
 	 * CarPark constructor sets the basic size parameters. Uses default
 	 * parameters
 	 */
-	private Integer maxCarSpaces;
-	private Integer maxSmallCarSpaces;
-	private Integer maxMotorCycleSpaces;
-	private Integer maxQueueSize;
-	private Integer numSmallCars = 0;
-	private Integer numCars = 0;
-	private Integer numMotorCycles = 0;
-	private Integer numDissatisfied = 0;
-	private Integer count = 1;
+	private int maxCarSpaces;
+	private int maxSmallCarSpaces;
+	private int maxMotorCycleSpaces;
+	private int maxQueueSize;
+	private int numSmallCars = 0;
+	private int numCars = 0;
+	private int numMotorCycles = 0;
+	private int numDissatisfied = 0;
+	private int count = 0;
 
-	private Queue<Vehicle> queue;
-	private ArrayList<Vehicle> spaces;
-	private ArrayList<Vehicle> past;
+	private Queue<Vehicle> queue = new LinkedList<Vehicle>();
+	private ArrayList<Vehicle> spaces = new ArrayList<Vehicle>(maxCarSpaces
+			+ maxSmallCarSpaces + maxMotorCycleSpaces);;
+	private ArrayList<Vehicle> past = new ArrayList<Vehicle>();;
 
-	String state = "N";
+	String state = "";
 	private Vehicle vehicle;
 
 	public CarPark() {
@@ -89,11 +90,6 @@ public class CarPark {
 		this.maxSmallCarSpaces = maxSmallCarSpaces;
 		this.maxMotorCycleSpaces = maxMotorCycleSpaces;
 		this.maxQueueSize = maxQueueSize;
-
-		spaces = new ArrayList<Vehicle>(maxCarSpaces + maxSmallCarSpaces
-				+ maxMotorCycleSpaces);
-		queue = new LinkedList<Vehicle>();
-		past = new ArrayList<Vehicle>();
 	}
 
 	/**
@@ -112,17 +108,19 @@ public class CarPark {
 	 */
 	public void archiveDepartingVehicles(int time, boolean force)
 			throws VehicleException, SimulationException {
-		Iterator<Vehicle> cars = spaces.iterator();
-		while (cars.hasNext()) {
-			if (force) {
-				vehicle.exitQueuedState(time);
-				past.add((Vehicle) cars);
-				spaces.remove(cars);
-				this.state = "A";
+		if (!force) {
+			for (int i = 0; i < spaces.size(); i++) {
+				Vehicle vehicle = spaces.get(i);
+				past.add(vehicle);
+				spaces.remove(vehicle);
 			}
+		} else {
+			for (Vehicle vehicle : spaces) {
+				unparkVehicle(vehicle, time);
+				past.add(vehicle);
+			}
+			spaces.clear();
 		}
-		throw new SimulationException(
-				"One or more departing vehicles are not in the car park when operation applied");
 	}
 
 	/**
@@ -154,7 +152,7 @@ public class CarPark {
 	 *             constraints are violated
 	 */
 	public void archiveQueueFailures(int time) throws VehicleException {
-		if (time > Constants.MAXIMUM_QUEUE_TIME) {
+		if (time - vehicle.getArrivalTime() > Constants.MAXIMUM_QUEUE_TIME) {
 			vehicle.exitQueuedState(time);
 			this.state = "A";// past list
 			numDissatisfied++;
@@ -205,6 +203,7 @@ public class CarPark {
 		if (!queueFull() && spacesAvailable(v)) {
 			queue.offer(v);
 			v.enterQueuedState();
+			setVehicleMsg(vehicle, "N", "Q");
 		} else {
 			throw new SimulationException("Queue is full");
 		}
@@ -358,7 +357,7 @@ public class CarPark {
 			throws SimulationException, VehicleException {
 		if (spacesAvailable(v)) {
 			v.enterParkedState(time, intendedDuration);
-			spaces.add(0, v);
+			spaces.add(v);
 		} else {
 			throw new SimulationException(
 					"No suitable spaces are available for parking");
@@ -380,12 +379,12 @@ public class CarPark {
 	 */
 	public void processQueue(int time, Simulator sim) throws VehicleException,
 			SimulationException {
+		
 		Iterator<Vehicle> queuedCar = queue.iterator();
 		while (queuedCar.hasNext()) {
-			queuedCar.next();
-			if (spacesAvailable(queue.element())) {
+			if (spacesAvailable(vehicle)) {
 				vehicle.exitQueuedState(time);
-				spaces.add(0, queue.poll());
+				spaces.add(queue.poll());
 				this.state = "P";
 			}
 			throw new SimulationException("No suitable spaces available");
@@ -484,7 +483,7 @@ public class CarPark {
 
 		if (sim.newCarTrial()) {
 			Car newCar = new Car("C" + this.count, time, false);
-		
+
 			if (queueFull() && carParkFull()) {
 				archiveNewVehicle(newCar);
 			} else if (carParkFull() && !queueFull()) {
@@ -497,7 +496,7 @@ public class CarPark {
 
 		if (sim.motorCycleTrial()) {
 			Car newMotorCycle = new Car("MC" + this.count, time, false);
-		
+
 			if (queueFull() && carParkFull()) {
 				archiveNewVehicle(newMotorCycle);
 			} else if (carParkFull() && !queueFull()) {

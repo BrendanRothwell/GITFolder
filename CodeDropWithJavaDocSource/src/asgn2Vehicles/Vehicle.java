@@ -47,12 +47,12 @@ import asgn2Simulators.Constants;
 public abstract class Vehicle {
 
 	String vehID;
-	Integer arrivalTime;
-	private Integer exitTime;
-	private Integer parkingTime;
-	private Integer departureTime;
+	int arrivalTime;
+	int exitTime;
+	int parkingTime;
+	int departureTime;
 	String state = "N";
-	private String satisfaction;
+	String satisfaction;
 	private Car car;
 
 	/**
@@ -66,6 +66,7 @@ public abstract class Vehicle {
 	 * @throws VehicleException
 	 *             if arrivalTime is <= 0
 	 */
+
 	public Vehicle(String vehID, int arrivalTime) throws VehicleException {
 		if (arrivalTime > 0) {
 			this.vehID = vehID;
@@ -92,15 +93,22 @@ public abstract class Vehicle {
 	 */
 	public void enterParkedState(int parkingTime, int intendedDuration)
 			throws VehicleException {
-		if (!isParked() && !isQueued() && parkingTime > 0
-				&& intendedDuration > Constants.MINIMUM_STAY) {
-			this.parkingTime = parkingTime;
-			this.departureTime = parkingTime + intendedDuration;
-			this.state = "P";
-			isParked();
-		} else {
-			throw new VehicleException("The vehicle doesn't satisfy condition.");
+		
+		if (state == "Q" || state == "P") {
+			throw new VehicleException ("Vehicle already in parked or queued state");
 		}
+		if (parkingTime < 0) {
+			throw new VehicleException ("Parking time cannot be a negative integer");
+		}
+		if (intendedDuration < Constants.MINIMUM_STAY) {
+			throw new VehicleException ("intendedDuration cannot be less than the Minimum Stay");
+		}
+		
+		this.state = "P";
+		this.parkingTime = parkingTime;
+		this.departureTime = parkingTime + intendedDuration;
+		isParked();
+		
 	}
 
 	/**
@@ -112,14 +120,17 @@ public abstract class Vehicle {
 	 *             if the vehicle is already in a queued or parked state
 	 */
 	public void enterQueuedState() throws VehicleException {
-		if (state != "P" && state != "Q") {
-			this.state = "Q";
-			isQueued();
-			this.exitQueuedState(exitTime);
-		} else {
-			throw new VehicleException(
-					"The vehicle is already in a queued or parked state.");
+		
+		if (state == "Q") {
+			throw new VehicleException ("Vehicle is already in queued state");
 		}
+		if (state == "P") {
+			throw new VehicleException ("Vehicle is currently in a parked state and cannot be queued");
+		}	
+		
+		this.state = "Q";
+		this.exitQueuedState(exitTime);
+		isQueued();
 	}
 
 	/**
@@ -132,12 +143,16 @@ public abstract class Vehicle {
 	 *             or if the revised departureTime < parkingTime
 	 */
 	public void exitParkedState(int departureTime) throws VehicleException {
-		if (isParked() && !isQueued() && departureTime >= parkingTime) {
-			wasParked();
-			this.state = "";
-		} else {
-			throw new VehicleException("The vehicle doesn't satisfy condition.");
+		
+		if (state != "P") {
+			throw new VehicleException("Vehicle is not in a parked state");
 		}
+		if (departureTime < parkingTime) {
+			throw new VehicleException("departureTime cannot be less/earlier than parkingTime");
+		}
+		
+		wasParked();
+		this.state = "";
 	}
 
 	/**
@@ -152,14 +167,17 @@ public abstract class Vehicle {
 	 *             or if exitTime is not later than arrivalTime for this vehicle
 	 */
 	public void exitQueuedState(int exitTime) throws VehicleException {
-		if (!isParked() && isQueued() && exitTime > arrivalTime) {
-			this.exitTime = exitTime;
-			wasQueued();
-			this.state = "";
-			this.enterQueuedState();
-		} else {
-			throw new VehicleException("The vehicle doesn't satisfy condition.");
+		if (state != "Q") {
+			throw new VehicleException("Vehicle is not in a queued state");
 		}
+		if (exitTime < arrivalTime) {
+			throw new VehicleException("exitTime cannot be less/earlier than arrivalTime");
+		}
+		
+		this.exitTime = exitTime;
+		wasQueued();
+		this.state = "";
+		this.enterQueuedState();
 	}
 
 	/**
