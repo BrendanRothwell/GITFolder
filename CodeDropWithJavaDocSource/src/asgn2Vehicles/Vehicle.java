@@ -51,7 +51,7 @@ public abstract class Vehicle {
 	int exitTime;
 	int parkingTime;
 	int departureTime;
-	String state = "N";
+	String state = "";
 	String satisfaction;
 	private Car car;
 
@@ -93,22 +93,25 @@ public abstract class Vehicle {
 	 */
 	public void enterParkedState(int parkingTime, int intendedDuration)
 			throws VehicleException {
-		
+
 		if (state == "Q" || state == "P") {
-			throw new VehicleException ("Vehicle already in parked or queued state");
+			throw new VehicleException(
+					"Vehicle already in parked or queued state");
 		}
 		if (parkingTime < 0) {
-			throw new VehicleException ("Parking time cannot be a negative integer");
+			throw new VehicleException(
+					"Parking time cannot be a negative integer");
 		}
 		if (intendedDuration < Constants.MINIMUM_STAY) {
-			throw new VehicleException ("intendedDuration cannot be less than the Minimum Stay");
+			throw new VehicleException(
+					"intendedDuration cannot be less than the Minimum Stay");
 		}
-		
+
 		this.state = "P";
 		this.parkingTime = parkingTime;
 		this.departureTime = parkingTime + intendedDuration;
 		isParked();
-		
+
 	}
 
 	/**
@@ -120,17 +123,18 @@ public abstract class Vehicle {
 	 *             if the vehicle is already in a queued or parked state
 	 */
 	public void enterQueuedState() throws VehicleException {
-		
+
 		if (state == "Q") {
-			throw new VehicleException ("Vehicle is already in queued state");
+			throw new VehicleException("Vehicle is already in queued state");
 		}
 		if (state == "P") {
-			throw new VehicleException ("Vehicle is currently in a parked state and cannot be queued");
-		}	
+			throw new VehicleException(
+					"Vehicle is currently in a parked state and cannot be queued");
+		}
+
 		
-		this.state = "Q";
-		this.exitQueuedState(exitTime);
 		isQueued();
+		this.state = "Q";
 	}
 
 	/**
@@ -143,16 +147,18 @@ public abstract class Vehicle {
 	 *             or if the revised departureTime < parkingTime
 	 */
 	public void exitParkedState(int departureTime) throws VehicleException {
-		
+
 		if (state != "P") {
 			throw new VehicleException("Vehicle is not in a parked state");
 		}
 		if (departureTime < parkingTime) {
-			throw new VehicleException("departureTime cannot be less/earlier than parkingTime");
+			throw new VehicleException(
+					"departureTime cannot be less/earlier than parkingTime");
 		}
-		
-		wasParked();
-		this.state = "";
+		if (departureTime == this.departureTime) {
+			wasParked();
+			this.state = "";
+		}
 	}
 
 	/**
@@ -171,13 +177,13 @@ public abstract class Vehicle {
 			throw new VehicleException("Vehicle is not in a queued state");
 		}
 		if (exitTime < arrivalTime) {
-			throw new VehicleException("exitTime cannot be less/earlier than arrivalTime");
+			throw new VehicleException(
+					"exitTime cannot be less/earlier than arrivalTime");
 		}
-		
+
 		this.exitTime = exitTime;
 		wasQueued();
 		this.state = "";
-		this.enterQueuedState();
 	}
 
 	/**
@@ -275,7 +281,7 @@ public abstract class Vehicle {
 			satisfaction = " was not ";
 		}
 		String vehicleStr = "";
-		if(vehID.startsWith("M")){
+		if (vehID.startsWith("M")) {
 			vehicleStr = "Vehicle vehID: " + vehID + " Arrival Time: "
 					+ arrivalTime;
 		} else {
