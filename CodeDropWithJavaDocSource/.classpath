@@ -2,5 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="C:/Users/MCROTHEEE/Documents/Uni/INB370/Pracs/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/MCROTHEEE/Documents/Uni/INB370/Pracs/junit-4.11.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
